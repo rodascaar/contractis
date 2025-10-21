@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contractis - Analizador de Contratos con IA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Contractis</h1>
+            <p>Sistema de Análisis de Riesgos Legales con IA</p>
+            <div class="llm-status" id="llmStatus">
+                <span class="llm-indicator" id="llmIndicator">🟢 Local</span>
+            </div>
+            <button class="history-btn" id="historyBtn" title="Ver Historial">📋</button>
+            <button class="settings-btn" id="settingsBtn" title="Configurar LLM">⚙️</button>
+        </header>
+
+        <main>
+            <section class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📄</div>
+                    <h3>Subir Contrato PDF</h3>
+                    <p>Arrastra y suelta tu archivo PDF aquí o haz clic para seleccionar</p>
+                    <input type="file" id="fileInput" accept=".pdf" hidden>
+                    <button class="btn-primary" id="selectFileBtn">Seleccionar Archivo</button>
+                </div>
+                <div class="file-info" id="fileInfo" style="display: none;">
+                    <p><strong>Archivo seleccionado:</strong> <span id="fileName"></span></p>
+                    <button class="btn-secondary" id="estimateBtn">📊 Estimar Tokens</button>
+                    <button class="btn-secondary" id="analyzeBtn" style="display: none;">Analizar Contrato</button>
+                </div>
+            </section>
+
+            <section class="estimation-section" id="estimationSection" style="display: none;">
+                <div class="estimation-header">
+                    <h3>📊 Estimación de Tokens</h3>
+                </div>
+                <div class="estimation-content" id="estimationContent">
+                    <div class="estimation-grid">
+                        <div class="estimation-card">
+                            <div class="estimation-label">Caracteres</div>
+                            <div class="estimation-value" id="estCharacters">-</div>
+                        </div>
+                        <div class="estimation-card">
+                            <div class="estimation-label">Tokens Estimados</div>
+                            <div class="estimation-value" id="estTokens">-</div>
+                        </div>
+                        <div class="estimation-card">
+                            <div class="estimation-label">Fragmentos</div>
+                            <div class="estimation-value" id="estChunks">-</div>
+                        </div>
+                        <div class="estimation-card">
+                            <div class="estimation-label">Tokens Totales</div>
+                            <div class="estimation-value highlight" id="estTotal">-</div>
+                        </div>
+                    </div>
+                    <div class="estimation-details">
+                        <h4>Desglose Detallado</h4>
+                        <table class="estimation-table">
+                            <tr>
+                                <td>System Prompt:</td>
+                                <td id="estSystemPrompt">-</td>
+                            </tr>
+                            <tr>
+                                <td>Fase 1 (Análisis por fragmentos):</td>
+                                <td id="estPhase1">-</td>
+                            </tr>
+                            <tr>
+                                <td>Fase 2 Input (Consolidación):</td>
+                                <td id="estPhase2Input">-</td>
+                            </tr>
+                            <tr>
+                                <td>Fase 2 Output:</td>
+                                <td id="estPhase2Output">-</td>
+                            </tr>
+                            <tr class="total-row">
+                                <td><strong>Total Estimado:</strong></td>
+                                <td><strong id="estTotalDetail">-</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="estimation-recommendation">
+                        <h4>💡 Recomendación</h4>
+                        <p>MaxTokens recomendado: <strong id="estRecommended">-</strong></p>
+                        <p id="estCurrentConfig">Tu configuración actual: <strong>-</strong></p>
+                        <button class="btn-primary" id="applyRecommendedBtn" style="display: none;">Aplicar Configuración Recomendada</button>
+                    </div>
+                    <div class="estimation-warning" id="estWarning" style="display: none;">
+                        <p id="estWarningText"></p>
+                    </div>
+                    <div class="estimation-actions">
+                        <button class="btn-primary" id="proceedAnalyzeBtn">✓ Continuar con Análisis</button>
+                        <button class="btn-secondary" id="cancelEstimateBtn">Cancelar</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <div class="results-header">
+                    <h3>Resultado del Análisis</h3>
+                    <button class="btn-primary" id="downloadBtn">Descargar PDF</button>
+                </div>
+                <div class="results-content" id="resultsContent">
+                    <!-- Los resultados se mostrarán aquí -->
+                </div>
+            </section>
+
+            <section class="loading-section" id="loadingSection" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>Analizando el contrato con IA... Esto puede tomar unos minutos.</p>
+                <div class="loading-progress" id="loadingProgress">Procesando documento...</div>
+                <div class="loading-warning">⚠️ Por favor, no cierres esta ventana ni cargues otro archivo mientras el análisis está en progreso.</div>
+            </section>
+
+            <section class="error-section" id="errorSection" style="display: none;">
+                <div class="error-message" id="errorMessage"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Configuración del LLM</h2>
+                <span class="close-btn" id="closeModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label for="llmType">Tipo de LLM:</label>
+                    <select id="llmType">
+                        <option value="local">Local (LLM Studio)</option>
+                        <option value="online">En línea (API)</option>
+                    </select>
+                </div>
+                <div class="setting-group" id="localSettings">
+                    <label for="localUrl">URL del servidor local:</label>
+                    <input type="text" id="localUrl" placeholder="http://localhost:1234/v1/chat/completions">
+                    <label for="localModelName">Nombre del modelo:</label>
+                    <input type="text" id="localModelName" placeholder="llama-3.2-3b-instruct">
+                </div>
+                <div class="setting-group" id="onlineSettings" style="display: none;">
+                    <label for="apiUrl">URL de la API:</label>
+                    <input type="text" id="apiUrl" placeholder="https://api.openai.com/v1/chat/completions">
+                    <label for="apiKey">API Key:</label>
+                    <input type="password" id="apiKey" placeholder="sk-...">
+                    <label for="onlineModelName">Nombre del modelo:</label>
+                    <input type="text" id="onlineModelName" placeholder="gpt-3.5-turbo">
+                </div>
+                <div class="setting-group">
+                    <label for="maxTokens">Máximo de tokens:</label>
+                    <input type="number" id="maxTokens" value="800" min="100" max="4000">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelBtn">Cancelar</button>
+                <button class="btn-primary" id="saveBtn">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="modal" style="display: none;">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>📋 Historial de Contratos</h2>
+                <span class="close-btn" id="closeHistoryModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="history-search">
+                    <input type="text" id="historySearch" placeholder="🔍 Buscar por nombre de archivo...">
+                    <button class="btn-secondary" id="refreshHistoryBtn">🔄 Actualizar</button>
+                </div>
+                <div class="history-stats" id="historyStats">
+                    <div class="stat-card">
+                        <div class="stat-label">Total</div>
+                        <div class="stat-value" id="statTotal">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Completados</div>
+                        <div class="stat-value" id="statCompleted">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Fallidos</div>
+                        <div class="stat-value" id="statFailed">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Tiempo Promedio</div>
+                        <div class="stat-value" id="statAvgTime">-</div>
+                    </div>
+                </div>
+                <div class="history-list" id="historyList">
+                    <div class="loading-spinner"></div>
+                    <p>Cargando historial...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

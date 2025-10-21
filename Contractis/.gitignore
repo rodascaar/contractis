@@ -1,0 +1,53 @@
+# Binarios compilados
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+contractis
+contractis-*
+
+# Archivos de test
+*.test
+*.out
+
+# Dependencias de Go
+go.work
+vendor/
+
+# Archivos temporales
+*.tmp
+*.temp
+*.pdf
+
+# Configuración local
+.env
+.env.local
+.env.*.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Cobertura de tests
+coverage.txt
+coverage.html
+*.coverprofile
+
+# Archivos de desarrollo
+debug
+*.pprof
+
+# Respaldo del código antiguo (opcional, puedes descomentar)
+# main_old.go

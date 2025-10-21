@@ -1,0 +1,41 @@
+# Binarios compilados
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+contractis
+contractis.exe
+server
+serverGo/server
+
+# Archivos de test
+*.test
+*.out
+
+# Dependencias de Go
+go.work
+
+# Archivos temporales
+*.tmp
+*.temp
+*.pdf
+document/*.pdf
+
+# Configuración local
+.env
+.env.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
