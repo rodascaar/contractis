@@ -228,7 +228,7 @@ Este proyecto está bajo la licencia MIT.
 
 ## 👥 Autores
 
-- Tu nombre - Trabajo inicial
+- Carlos Barrios - Trabajo inicial
 
 ## 🙏 Agradecimientos
 
